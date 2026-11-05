@@ -1,0 +1,60 @@
+# Generated with AI assistance - Kiro [2025-05]
+# .pre-commit-config.yaml
+# Pre-commit hooks for code formatting and basic safety checks.
+#
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║ WHAT IS THIS?                                                    ║
+# ║ Pre-commit hooks run automatically BEFORE each git commit.       ║
+# ║ They check your code and fix small issues (formatting, keys).    ║
+# ║                                                                  ║
+# ║ SETUP (one time only):                                          ║
+# ║   pip install pre-commit                                         ║
+# ║   pre-commit install                                             ║
+# ║                                                                  ║
+# ║ WHAT HAPPENS WHEN YOU COMMIT:                                    ║
+# ║   1. You run: git add . && git commit -m "my message"           ║
+# ║   2. Hooks run automatically and check your files                ║
+# ║   3. If all pass → commit succeeds                              ║
+# ║   4. If one fails → commit is blocked, read the error message   ║
+# ║      - For formatting: ruff auto-fixes the file, just re-commit ║
+# ║      - For private keys: remove the key file content             ║
+# ║                                                                  ║
+# ║ ⚠️  WARNING: These hooks do NOT catch all secrets!               ║
+# ║ API keys, passwords, and tokens hardcoded in your scripts will   ║
+# ║ NOT be detected automatically. Never put secrets in code.        ║
+# ║ Use a secret manager instead (see Repository Governance Guide).  ║
+# ║                                                                  ║
+# ║ TO DISABLE (if needed):                                         ║
+# ║   pre-commit uninstall                                           ║
+# ║   Or remove the hook entry below you don't want.                 ║
+# ║                                                                  ║
+# ║ UPDATE hook versions:                                            ║
+# ║   pre-commit autoupdate                                          ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# Documentation: https://pre-commit.com/
+
+repos:
+  # --- Python Formatting (lenient mode) ---
+  # ruff-format: Automatically reformats your Python code to look consistent.
+  # It does NOT reject your commit — it silently fixes formatting and you re-commit.
+  # This only reformats (spacing, indentation, quotes). It does not change logic.
+  # To remove: delete this section and run `pre-commit install` again.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff-format
+        # Format-only mode: no linting errors, just auto-formatting.
+
+  # --- General Hygiene ---
+  # These hooks catch common mistakes silently.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace      # removes trailing spaces
+      - id: end-of-file-fixer        # ensures files end with newline
+      - id: check-yaml               # validates YAML files (catches METADATA.yaml errors)
+      - id: check-added-large-files
+        args: ['--maxkb=500']        # blocks files > 500 KB (probably data, not code)
+      - id: check-merge-conflict     # catches forgotten merge conflict markers
+      - id: detect-private-key       # catches private keys (.pem content)

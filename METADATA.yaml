@@ -1,0 +1,113 @@
+# Generated with AI assistance - Kiro [2025-05]
+# ============================================================
+# METADATA.yaml — Machine-readable repository metadata
+# Schema version: 1.2
+# ============================================================
+# This file is used by automated inventory scripts, compliance audits,
+# and governance dashboards to monitor SFOE repositories.
+#
+# INSTRUCTIONS: Replace all placeholder values below with your project's
+# actual information. Do not delete any required fields.
+#
+# NOTE ON PUBLIC REPOS: Do NOT use personal names in this file if the
+# repository is public. Use team names, functional roles, or team email
+# addresses instead (e.g., "Team Energy Efficiency" or "ee-team@bfe.admin.ch").
+# ============================================================
+
+# Schema version — do not change this unless instructed by governance team.
+schema_version: "1.2"
+
+# --- Ownership ---
+# These fields use "repo_" prefix to distinguish from data ownership.
+
+# repo_owner: The person, team, or role accountable for this repository's content and lifecycle.
+# For PUBLIC repos: use team name or functional role (not personal names).
+# For PRIVATE repos: personal names.
+repo_owner: "Team Name / Functional Role"
+
+# repo_custodian: The person or role responsible for day-to-day maintenance and technical operations.
+# For PUBLIC repos: use team name or functional role (not personal names).
+# For PRIVATE repos: personal names.
+# May be the same as repo_owner for small projects.
+repo_custodian: "Team Name / Functional Role"
+
+# section: The official SFOE section abbreviation responsible for this repository.
+# Use the official abbreviation in UPPERCASE as shown in the SFOE organigramme
+# (bottom-left of each box). Example: EE, PU, etc.
+section: "EE"
+
+# --- Project Description ---
+
+# purpose: A concise description of what this code does and what it is used for.
+# Required when status is 'operational'.
+# Example: "Monthly energy production statistics calculation"
+purpose: "Describe what this code does and what it is used for."
+
+# --- Automation (optional) ---
+
+# schedule: How often this code runs, if it is automated.
+# Leave empty if the code is not automated (manual execution only).
+# Valid values: daily, weekly, monthly, quarterly, yearly, on-demand, event-triggered
+# Example: "monthly"
+schedule: ""
+
+# --- Data Lineage (optional) ---
+
+# i14y_url: Link to the dataset published on the I14Y interoperability platform
+# (https://www.i14y.admin.ch/) that this pipeline produces or contributes to.
+# Leave empty if this code does not publish data to I14Y.
+# This creates traceability between the processing code and the published dataset.
+# Example: "https://www.i14y.admin.ch/catalog/datasets/xyz-123"
+# SINGLE dataset (or none) — use a string:
+#   Example (one dataset):  i14y_url: "https://www.i14y.admin.ch/catalog/datasets/xyz-123"
+#   Example (none):         i14y_url: ""
+#
+# MULTIPLE datasets — if this repository produces more than one dataset,
+# use a YAML list instead (one URL per line, each prefixed with "- "):
+#   i14y_url:
+#     - "https://www.i14y.admin.ch/catalog/datasets/xyz-123"
+#     - "https://www.i14y.admin.ch/catalog/datasets/abc-456"
+i14y_url: ""
+
+# --- Governance ---
+
+# data_product_class: Classification of the data product this code produces.
+# linked to digital evolution needs
+# Valid values (exactly one of):
+#   simple-data        — Master data, aggregated datasets, enriched datasets
+#   descriptive        — Descriptive analytics (KPIs, dashboards, reports)
+#   advanced-analytics — Statistical models, ML, diagnostic/predictive/prescriptive analytics
+data_product_class: "simple-data"
+
+# ai_development: Level of AI assistance used to WRITE this code.
+# Values are listed from lowest to highest autonomy.
+# If multiple tools were used, declare the highest level (e.g., Copilot + Kiro → ai-generated).
+# Valid values:
+#   none           — No AI tools used during development
+#   ai-assisted    — Code completion tools (e.g., Copilot inline suggestions). Low autonomy.
+#   ai-generated   — Agentic AI tools that generate/modify substantial code (e.g., Kiro, Cursor). High autonomy.
+ai_development: "none"
+
+# --- Compliance ---
+
+# license: The SPDX license identifier for this repository.
+# Recommended: MIT (see Em002-3 Guide Licences OSS for guidance)
+# Other valid values: Apache-2.0, GPL-3.0-only, EUPL-1.2
+# Full list of SPDX identifiers: https://spdx.org/licenses/preview/
+license: "MIT"
+
+# status: The current operational status of this repository.
+# Valid values (exactly one of):
+#   operational    — Code is in active use for its stated purpose
+#   in-development — Code is being developed and is not yet in production use
+#   archived       — Code is no longer actively maintained but preserved for reference
+#   deprecated     — Code has been superseded and should not be used
+status: "in-development"
+
+# --- Lifecycle ---
+
+# last_reviewed_date: Date of the last review of this metadata information.
+# Review this file at least once a year to ensure ownership, status, and
+# purpose are still accurate. Update this date after each review.
+# Format: ISO 8601 (YYYY-MM-DD)
+last_reviewed_date: "YYYY-MM-DD"

@@ -1,0 +1,25 @@
+# Generated with AI assistance - Kiro [2025-05]
+# ============================================================
+# CODEOWNERS — Automatic review assignment
+# ============================================================
+# This file defines who is automatically requested as reviewer
+# when specific files are modified in a pull request.
+#
+# IMPORTANT: CODEOWNERS enforcement requires branch protection rules.
+# On the free GitHub Organization plan, this only works on PUBLIC repositories.
+# For private repositories, CODEOWNERS requires GitHub Team or Enterprise plan.
+# On private repos (free plan), this file serves as documentation only.
+#
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ============================================================
+
+# Default owner for all files — the repo-custodian
+# Replace @username with the GitHub username of the repo-custodian
+* @username-of-repo-custodian
+
+# Workflow files — require custodian review for any automation changes
+.github/workflows/ @username-of-repo-custodian
+
+# Metadata and governance files — require custodian review
+METADATA.yaml @username-of-repo-custodian
+LICENSE @username-of-repo-custodian
