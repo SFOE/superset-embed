@@ -10,6 +10,24 @@
         "it": "e4b55936-1db4-4260-9da8-9bb4263af860",
         "en": "b836bb10-a5c1-4ede-b4b4-1190f1f107a9"
       }
+    },
+    {
+      "name": "kernkraftwerke",
+      "uuid": {
+        "de": "1361fe31-7844-4d17-ab38-f5fcb7a244ad",
+        "fr": "9fc576fb-bb10-49c3-ae88-296621995c24",
+        "it": "df43b0f4-b4a4-4153-80a4-43e8635b5709",
+        "en": "a5e167e5-e629-47de-8326-7dae1255246a"
+      }
+    },
+    {
+      "name": "wasserkraft",
+      "uuid": {
+        "de": "aa15f908-cc55-457e-865d-bdbe39b4b92a",
+        "fr": "88c2943f-19f1-4686-8b6b-ca312ba00c28",
+        "it": "c5abfa53-b5d4-4f47-a93e-306b8a32fad8",
+        "en": "025ba74c-bbb5-4e55-8172-bde4f3dd4165"
+      }
     }
   ]
 }

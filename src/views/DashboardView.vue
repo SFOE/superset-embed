@@ -7,6 +7,7 @@ import { useRegistryStore } from '../stores/registryStore'
 import { resolveUuid, type Locale, type RegistryEntry } from '../registry'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
+import DashboardSwitcher from '../components/DashboardSwitcher.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -95,10 +96,9 @@ const availableNames = computed(() =>
   <AppHeader />
 
   <main class="dashboard-main">
-    <section class="dashboard-hero">
+    <section class="dashboard-toolbar">
       <div class="app-container">
-        <h1 class="hero-title">{{ t('dashboard_heading') }}</h1>
-        <p class="hero-text">{{ t('dashboard_subheading') }}</p>
+        <DashboardSwitcher />
       </div>
     </section>
 
@@ -145,28 +145,14 @@ const availableNames = computed(() =>
   background: #ffffff;
 }
 
-/* --- Hero --- */
-.dashboard-hero {
-  background: var(--color-primary);
-  color: #fff;
-  padding: 36px 0 30px;
-}
-.hero-title {
-  font-size: 1.8rem;
-  font-weight: 500;
-  margin: 0 0 10px;
-}
-.hero-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  max-width: 760px;
-  margin: 0;
-  opacity: 0.9;
+/* --- Toolbar: dashboard switcher in the white content area --- */
+.dashboard-toolbar {
+  padding: 16px 0 4px;
 }
 
 /* --- Dashboard card: square corners (admin.ch), no inner scroll --- */
 .dashboard-section {
-  padding: 32px 0 48px;
+  padding: 12px 0 48px;
 }
 .dashboard-card {
   position: relative;
@@ -246,11 +232,10 @@ const availableNames = computed(() =>
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-@media (max-width: 768px) {
-  .hero-title { font-size: 1.4rem; }
-}
 </style>
+
+
+
 
 
 
