@@ -25,6 +25,9 @@ database, no build step to publish a new dashboard.
 > can be re-pointed at any public Superset instance. See
 > [Reuse it for your own dashboards](#reuse-it-for-your-own-dashboards).
 
+<img width="1261" height="763" alt="image" src="https://github.com/user-attachments/assets/99ec2b3d-4e35-4728-a481-03bbfc15630c" />
+
+
 ## Table of contents
 
 - [How it works](#how-it-works)
