@@ -47,13 +47,13 @@ const { t } = useI18n()
 .bottom-header-inner {
   display: flex;
   align-items: center;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   gap: 16px;
 }
 
 .header-logo {
-  height: 52px;
+  height: 60px;
   width: auto;
   flex-shrink: 0;
 }
@@ -96,6 +96,7 @@ const { t } = useI18n()
   }
 }
 </style>
+
 
 
 

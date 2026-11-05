@@ -1,5 +1,10 @@
 # superset-embed
 
+[![CI - Lint](https://github.com/SFOE/superset-embed/actions/workflows/lint.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/lint.yml)
+[![CI - Unit tests](https://github.com/SFOE/superset-embed/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/unit_tests.yml)
+[![CI - e2e tests](https://github.com/SFOE/superset-embed/actions/workflows/e2e_tests.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/e2e_tests.yml)
+[![CI - Security](https://github.com/SFOE/superset-embed/actions/workflows/security.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/security.yml)
+
 ![Repo Owner](https://img.shields.io/badge/Repo_Owner-Team%20DI-blue)
 ![Repo Custodian](https://img.shields.io/badge/Repo_Custodian-Team%20DI-blue)
 ![Section](https://img.shields.io/badge/Section-DI-lightgrey)
