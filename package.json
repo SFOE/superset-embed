@@ -7,6 +7,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "preinstall": "node scripts/guard-install.js",
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "build-only": "vite build",
@@ -53,4 +54,3 @@
     "vue-tsc": "^3.3.3"
   }
 }
-
