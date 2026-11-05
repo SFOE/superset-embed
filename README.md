@@ -27,7 +27,6 @@ database, no build step to publish a new dashboard.
 
 <img width="1261" height="763" alt="image" src="https://github.com/user-attachments/assets/99ec2b3d-4e35-4728-a481-03bbfc15630c" />
 
-
 ## Table of contents
 
 - [How it works](#how-it-works)
@@ -35,6 +34,7 @@ database, no build step to publish a new dashboard.
 - [Configuration](#configuration)
 - [Add or update a dashboard](#add-or-update-a-dashboard)
 - [Reuse it for your own dashboards](#reuse-it-for-your-own-dashboards)
+- [Styling Superset to match (Swiss Design System)](#styling-superset-to-match-swiss-design-system)
 - [Development](#development)
 - [Maintenance](#maintenance)
 - [Security](#security)
@@ -143,6 +143,61 @@ assets and config values. To adopt it for another office or project:
   `METADATA.yaml`.
 
 The MIT license lets you fork and adapt freely; attribution is appreciated.
+
+## Styling Superset to match (Swiss Design System)
+
+This app styles its own shell (header, footer, select). The embedded dashboards
+are rendered by Superset, so their look comes from **Superset's own theme** —
+not from this repo. To make the dashboards match the Swiss Confederation
+(admin.ch) / [Swiss Design System](https://swiss.github.io/designsystem/) look,
+brand Superset itself.
+
+The reliable, supported way is the global **theme** (Superset 6.x uses Ant
+Design design tokens). Add a `THEME_DEFAULT` to your `superset_config.py`. It
+applies to every dashboard **and** to the `standalone=2` pages this app embeds,
+so new dashboards inherit it for free:
+
+```python
+# superset_config.py — global Swiss Design System theme
+THEME_DEFAULT = {
+    "token": {
+        "colorPrimary": "#2f4356",   # Swiss Confederation dark blue-grey
+        "colorLink": "#005ea5",
+        "colorError": "#d8232a",     # Swiss red
+        # White surfaces everywhere (admin.ch flat look):
+        "colorBgLayout": "#ffffff",
+        "colorBgContainer": "#ffffff",
+        "colorBgElevated": "#ffffff",
+        # Borderless cards: white borders + zero line width:
+        "colorBorder": "#ffffff",
+        "colorBorderSecondary": "#ffffff",
+        "colorSplit": "#ffffff",
+        "lineWidth": 0,
+        # Noto Sans is the Swiss Design System's open web font. The official
+        # CD Bund Frutiger is licensed and cannot be self-hosted.
+        "fontUrls": [
+            "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap",
+        ],
+        "fontFamily": "'Noto Sans', Helvetica, Arial, sans-serif",
+        "fontWeightStrong": "600",
+    },
+    "algorithm": "default",
+}
+THEME_DARK = None  # force a single light theme — no dark-mode toggle
+```
+
+Restart Superset after editing (`docker compose restart superset`).
+
+Notes:
+
+- These are public Swiss Design System color values, not secrets. Keep real
+  secrets (`SECRET_KEY`, database credentials) out of any file you commit or
+  share.
+- The theme tokens above mirror the shell tokens in `src/assets/base.css`, so
+  the embedded dashboard and the surrounding frame stay visually consistent.
+- **Per-dashboard CSS** (a dashboard's _Edit properties → CSS_) can add small
+  layout polish the tokens can't express, but prefer the global theme — it is
+  the only path verified to reach the `standalone=2` embed consistently.
 
 ## Development
 
