@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRegistryStore } from '../stores/registryStore'
 
@@ -7,41 +7,116 @@ const route = useRoute()
 const router = useRouter()
 const registryStore = useRegistryStore()
 
-// All published dashboard names, in registry order.
 const names = computed(() => registryStore.registry.dashboards.map((d) => d.name))
-
-// Only worth showing when there is more than one dashboard.
 const show = computed(() => names.value.length > 1)
 
-// The slug currently shown. On the root path, fall back to the default entry.
+function label(name: string): string {
+  const spaced = name.replace(/-/g, ' ')
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
+
 const current = computed(() => {
   const slug = route.params.name
   if (typeof slug === 'string' && slug.length > 0) return slug
   return registryStore.getDefault()?.name ?? ''
 })
 
-// Derive a readable label from a POSIX slug: "my-dashboard" -> "My dashboard".
-function label(name: string): string {
-  const spaced = name.replace(/-/g, ' ')
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+// --- searchable dropdown state ---
+const open = ref(false)
+const query = ref('')
+const activeIndex = ref(0)
+
+const filtered = computed(() => {
+  const q = query.value.trim().toLowerCase()
+  const list = names.value
+  if (!q) return list
+  return list.filter((n) => n.toLowerCase().includes(q) || label(n).toLowerCase().includes(q))
+})
+
+watch(open, (isOpen) => {
+  if (isOpen) {
+    query.value = ''
+    activeIndex.value = Math.max(0, filtered.value.indexOf(current.value))
+  }
+})
+watch(filtered, () => {
+  activeIndex.value = 0
+})
+
+function choose(name: string) {
+  open.value = false
+  if (name && name !== current.value) router.push('/' + name)
 }
 
-function onChange(event: Event) {
-  const name = (event.target as HTMLSelectElement).value
-  if (name && name !== route.params.name) {
-    router.push('/' + name)
+function onKeydown(e: KeyboardEvent) {
+  if (!open.value && (e.key === 'ArrowDown' || e.key === 'Enter')) {
+    open.value = true
+    return
   }
+  if (!open.value) return
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    activeIndex.value = Math.min(activeIndex.value + 1, filtered.value.length - 1)
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    activeIndex.value = Math.max(activeIndex.value - 1, 0)
+  } else if (e.key === 'Enter') {
+    e.preventDefault()
+    const pick = filtered.value[activeIndex.value]
+    if (pick) choose(pick)
+  } else if (e.key === 'Escape') {
+    open.value = false
+  }
+}
+
+function onBlur() {
+  // close after a tick so option mousedown registers
+  setTimeout(() => (open.value = false), 120)
 }
 </script>
 
 <template>
   <div v-if="show" class="dash-switcher">
-    <label for="dash-select" class="sr-only">Dashboard</label>
-    <select id="dash-select" class="dash-select" :value="current" @change="onChange">
-      <option v-for="name in names" :key="name" :value="name">
-        {{ label(name) }}
-      </option>
-    </select>
+    <span class="dash-label">Dashboard</span>
+    <div class="dash-combo">
+      <input
+        v-if="open"
+        class="dash-input"
+        type="text"
+        :placeholder="label(current)"
+        v-model="query"
+        @keydown="onKeydown"
+        @blur="onBlur"
+        ref="inputEl"
+        autofocus
+      />
+      <button
+        v-else
+        type="button"
+        class="dash-trigger"
+        @click="open = true"
+        @keydown="onKeydown"
+      >
+        <span class="dash-current">{{ label(current) }}</span>
+        <span class="dash-caret" aria-hidden="true">▾</span>
+      </button>
+
+      <ul v-if="open" class="dash-menu" role="listbox">
+        <li v-if="filtered.length === 0" class="dash-empty">No match</li>
+        <li
+          v-for="(name, i) in filtered"
+          :key="name"
+          role="option"
+          :aria-selected="name === current"
+          class="dash-option"
+          :class="{ active: i === activeIndex, selected: name === current }"
+          @mousedown.prevent="choose(name)"
+          @mouseenter="activeIndex = i"
+        >
+          {{ label(name) }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -49,39 +124,86 @@ function onChange(event: Event) {
 .dash-switcher {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+.dash-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
-.dash-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: #fff
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232f4356' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
-    no-repeat right 8px center;
-  border: 1px solid var(--color-border, #dcdcdc);
+.dash-combo {
+  position: relative;
+  min-width: 260px;
+}
+.dash-trigger,
+.dash-input {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: #fff;
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-sm);
-  color: var(--color-text, #2f4356);
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 7px 30px 7px 12px;
+  padding: 10px 14px;
   cursor: pointer;
-  min-width: 160px;
+  text-align: left;
 }
-.dash-select:focus {
-  outline: 2px solid var(--color-primary, #2f4356);
+.dash-input {
+  font-weight: 500;
+  outline: none;
+}
+.dash-trigger:hover {
+  background: #f4f6f8;
+}
+.dash-trigger:focus,
+.dash-input:focus {
+  outline: 2px solid var(--color-link);
   outline-offset: 1px;
 }
-.dash-select option {
-  color: var(--color-text);
+.dash-caret {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+.dash-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
   background: #fff;
+  border: 1px solid var(--color-separator);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.dash-option {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.dash-option.active {
+  background: #eef2f5;
+}
+.dash-option.selected {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.dash-empty {
+  padding: 9px 12px;
+  color: var(--color-muted);
+  font-size: 0.95rem;
 }
 </style>
-

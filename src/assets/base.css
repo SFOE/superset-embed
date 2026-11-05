@@ -52,7 +52,7 @@ a:hover {
 .app-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 12px;
   width: 100%;
 }
 
@@ -65,3 +65,4 @@ a:hover {
   color: #fff;
   text-decoration: underline;
 }
+
