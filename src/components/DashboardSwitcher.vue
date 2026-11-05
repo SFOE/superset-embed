@@ -145,30 +145,35 @@ function onBlur() {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text);
   background: #fff;
-  border: 2px solid var(--color-primary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
   text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .dash-input {
-  font-weight: 500;
+  font-weight: 400;
   outline: none;
 }
 .dash-trigger:hover {
-  background: #f4f6f8;
+  border-color: var(--color-muted);
+  background: #fafbfc;
 }
 .dash-trigger:focus,
 .dash-input:focus {
-  outline: 2px solid var(--color-link);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--color-link);
+  box-shadow: var(--shadow-focus);
 }
 .dash-caret {
-  color: var(--color-primary);
+  color: var(--color-muted);
   font-size: 0.9rem;
 }
 .dash-menu {
@@ -190,7 +195,7 @@ function onBlur() {
 .dash-option {
   padding: 9px 12px;
   border-radius: var(--radius-sm);
-  font-size: 1rem;
+  font-size: 16px;
   color: var(--color-text);
   cursor: pointer;
 }
