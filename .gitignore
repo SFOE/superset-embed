@@ -1,50 +1,38 @@
-# Generated with AI assistance - Kiro [2025-05]
 # ============================================================
-# .gitignore — SFOE Repository Template
-# Configured for Python and R small pipelines/automation scripts
+# .gitignore - superset-embed (Vue 3 / Vite / TypeScript)
 # ============================================================
 
-# === Python ===
-__pycache__/
-*.pyc
-.venv/
-venv/
-.pytest_cache/
-.ruff_cache/
+# === Dependencies & build output ===
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
 
-# === R ===
-.Rhistory
-.RData
-.Rproj.user/
+# === Test / tooling caches ===
+.eslintcache
+*.tsbuildinfo
+.cypress/
+cypress/screenshots/
+cypress/videos/
+
+# vue-tsc --build emits .js/.d.ts next to root config .ts files; not source
+*.config.js
+*.config.d.ts
 
 # === Secrets & Credentials (NEVER commit these) ===
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 credentials.*
 secrets.*
 *.token
 
-# === Data & Output directories ===
-# All content in data/ and output/ is ignored by default.
-# These folders are for local use only — do not push data or results to remote.
-# To track a specific file, add a negation pattern: !data/reference_values.csv
-data/*
-!data/.gitkeep
-output/*
-!output/.gitkeep
-
-# === Data Files (safety net for beginners) ===
-# Prevents accidental push of local datasets anywhere in the repo.
-# To track a specific file, add a negation pattern: !path/to/file.csv
-*.csv
-*.xlsx
-*.xls
-*.parquet
-
 # === IDE & OS ===
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 .DS_Store
 Thumbs.db

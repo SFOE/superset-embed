@@ -1,0 +1,12 @@
+{
+  "header_title": "Bundesamt für Energie BFE",
+  "page_title": "BFE StoryMaps — Geodaten Dashboard",
+  "page_description": "Interaktive Karten mit Energiedaten der Schweiz, basierend auf Open Government Data.",
+  "dashboard_heading": "Energiedaten der Schweiz",
+  "dashboard_subheading": "Kantonsvergleiche und Standortkarten aus offenen Daten des BFE",
+  "footer_terms": "Rechtliche Grundlagen",
+  "footer_contact": "Kontakt",
+  "loading": "Dashboard wird geladen…",
+  "dashboard_not_found": "Dashboard nicht gefunden",
+  "dashboard_available": "Verfügbare Dashboards:"
+}

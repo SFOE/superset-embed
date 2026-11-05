@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://storymaps2superset/dashboards.schema.json",
+  "title": "Dashboard Registry",
+  "description": "Registry of public Superset dashboards exposed by the Vue shell. Each entry maps a POSIX URL slug (name) to per-locale Superset dashboard UUIDs.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this JSON Schema so editors can validate the file."
+    },
+    "default": {
+      "type": "string",
+      "description": "The name of the dashboard shown at the root path. Optional.",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "dashboards": {
+      "type": "array",
+      "description": "The published dashboards.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "URL-safe POSIX slug, unique within the registry.",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "uuid": {
+            "type": "object",
+            "description": "Per-locale Superset dashboard UUIDs. 'de' is required; 'fr', 'it', 'en' are optional.",
+            "properties": {
+              "de": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fr": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "it": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "en": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": ["de"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["name", "uuid"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["dashboards"],
+  "additionalProperties": true
+}

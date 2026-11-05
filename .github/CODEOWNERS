@@ -15,11 +15,12 @@
 
 # Default owner for all files — the repo-custodian
 # Replace @username with the GitHub username of the repo-custodian
-* @username-of-repo-custodian
+* @monodo
 
 # Workflow files — require custodian review for any automation changes
-.github/workflows/ @username-of-repo-custodian
+.github/workflows/ @monodo
 
 # Metadata and governance files — require custodian review
-METADATA.yaml @username-of-repo-custodian
-LICENSE @username-of-repo-custodian
+METADATA.yaml @monodo
+LICENSE @monodo
+

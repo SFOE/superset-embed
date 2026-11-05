@@ -1,0 +1,67 @@
+/* Design tokens — replicates SFOE drill-frontend Swiss Federal style */
+:root {
+  --color-primary: #2f4356;
+  --color-link: #005ea5;
+  --color-link-hover: #003a6d;
+  --color-text: #333;
+  --color-muted: #757575;
+  --color-border: #ccc;
+  --color-separator: #dcdcdc;
+  --color-bg: #ffffff;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 3px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 5px 14px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 3px 12px rgba(0, 123, 255, 0.25);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Frutiger LT Com', Roboto, 'Helvetica Neue', sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+}
+
+/* Utility: full-bleed element breaks out of .app-container */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+/* Content container — centered, max 1200px */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Footer link overrides */
+.footer-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+.footer-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}

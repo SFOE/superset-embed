@@ -23,25 +23,25 @@ schema_version: "1.2"
 # repo_owner: The person, team, or role accountable for this repository's content and lifecycle.
 # For PUBLIC repos: use team name or functional role (not personal names).
 # For PRIVATE repos: personal names.
-repo_owner: "Team Name / Functional Role"
+repo_owner: "Team Digitalisierung und Informatik (DI)"
 
 # repo_custodian: The person or role responsible for day-to-day maintenance and technical operations.
 # For PUBLIC repos: use team name or functional role (not personal names).
 # For PRIVATE repos: personal names.
 # May be the same as repo_owner for small projects.
-repo_custodian: "Team Name / Functional Role"
+repo_custodian: "Team Digitalisierung und Informatik (DI)"
 
 # section: The official SFOE section abbreviation responsible for this repository.
 # Use the official abbreviation in UPPERCASE as shown in the SFOE organigramme
 # (bottom-left of each box). Example: EE, PU, etc.
-section: "EE"
+section: "DI"
 
 # --- Project Description ---
 
 # purpose: A concise description of what this code does and what it is used for.
 # Required when status is 'operational'.
 # Example: "Monthly energy production statistics calculation"
-purpose: "Describe what this code does and what it is used for."
+purpose: "Vue app that embeds public Apache Superset dashboards (BFE/SFOE geodata) with the admin.ch look; dashboards are selected by URL slug via an in-repo registry (public/dashboards.json)."
 
 # --- Automation (optional) ---
 
@@ -77,7 +77,7 @@ i14y_url: ""
 #   simple-data        — Master data, aggregated datasets, enriched datasets
 #   descriptive        — Descriptive analytics (KPIs, dashboards, reports)
 #   advanced-analytics — Statistical models, ML, diagnostic/predictive/prescriptive analytics
-data_product_class: "simple-data"
+data_product_class: "descriptive"
 
 # ai_development: Level of AI assistance used to WRITE this code.
 # Values are listed from lowest to highest autonomy.
@@ -86,7 +86,7 @@ data_product_class: "simple-data"
 #   none           — No AI tools used during development
 #   ai-assisted    — Code completion tools (e.g., Copilot inline suggestions). Low autonomy.
 #   ai-generated   — Agentic AI tools that generate/modify substantial code (e.g., Kiro, Cursor). High autonomy.
-ai_development: "none"
+ai_development: "ai-generated"
 
 # --- Compliance ---
 
@@ -110,4 +110,5 @@ status: "in-development"
 # Review this file at least once a year to ensure ownership, status, and
 # purpose are still accurate. Update this date after each review.
 # Format: ISO 8601 (YYYY-MM-DD)
-last_reviewed_date: "YYYY-MM-DD"
+last_reviewed_date: "2026-11-05"
+

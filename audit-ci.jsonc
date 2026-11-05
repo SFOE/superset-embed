@@ -1,0 +1,11 @@
+{
+  // Config for audit-ci (https://github.com/IBM/audit-ci), used by
+  // .github/workflows/security.yml instead of plain `npm audit` so we can
+  // allowlist specific, reviewed advisories instead of failing the build or
+  // disabling the audit gate. Keep the allowlist EMPTY until a real,
+  // unfixable dev-only advisory appears; add a path-scoped entry with a note
+  // and an expiry when it does.
+  "high": true,
+  "critical": true,
+  "allowlist": []
+}

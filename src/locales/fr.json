@@ -1,0 +1,12 @@
+{
+  "header_title": "Office fédéral de l'énergie OFEN",
+  "page_title": "BFE StoryMaps — Tableau de bord géodonnées",
+  "page_description": "Cartes interactives avec données énergétiques de la Suisse, basées sur les données ouvertes de l'OFEN.",
+  "dashboard_heading": "Données énergétiques de la Suisse",
+  "dashboard_subheading": "Comparaisons cantonales et cartes de sites à partir de données ouvertes de l'OFEN",
+  "footer_terms": "Bases légales",
+  "footer_contact": "Contact",
+  "loading": "Chargement du tableau de bord…",
+  "dashboard_not_found": "Tableau de bord introuvable",
+  "dashboard_available": "Tableaux de bord disponibles :"
+}

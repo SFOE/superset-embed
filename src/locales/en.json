@@ -1,0 +1,12 @@
+{
+  "header_title": "Swiss Federal Office of Energy SFOE",
+  "page_title": "BFE StoryMaps — Geodata Dashboard",
+  "page_description": "Interactive maps with Swiss energy data, based on SFOE Open Government Data.",
+  "dashboard_heading": "Swiss Energy Data",
+  "dashboard_subheading": "Canton comparisons and site maps from SFOE open data",
+  "footer_terms": "Terms and conditions",
+  "footer_contact": "Contact",
+  "loading": "Loading dashboard…",
+  "dashboard_not_found": "Dashboard not found",
+  "dashboard_available": "Available dashboards:"
+}
