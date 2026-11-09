@@ -4,6 +4,7 @@
 [![CI - Unit tests](https://github.com/SFOE/superset-embed/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/unit_tests.yml)
 [![CI - e2e tests](https://github.com/SFOE/superset-embed/actions/workflows/e2e_tests.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/e2e_tests.yml)
 [![CI - Security](https://github.com/SFOE/superset-embed/actions/workflows/security.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/security.yml)
+[![Publish to S3](https://github.com/SFOE/superset-embed/actions/workflows/release_and_push_s3.yml/badge.svg)](https://github.com/SFOE/superset-embed/actions/workflows/release_and_push_s3.yml)
 
 ![Repo Owner](https://img.shields.io/badge/Repo_Owner-Team%20DI-blue)
 ![Repo Custodian](https://img.shields.io/badge/Repo_Custodian-Team%20DI-blue)
@@ -35,6 +36,7 @@ database, no build step to publish a new dashboard.
 - [Add or update a dashboard](#add-or-update-a-dashboard)
 - [Reuse it for your own dashboards](#reuse-it-for-your-own-dashboards)
 - [Styling Superset to match (Swiss Design System)](#styling-superset-to-match-swiss-design-system)
+- [Deployment](#deployment)
 - [Development](#development)
 - [Maintenance](#maintenance)
 - [Security](#security)
@@ -198,6 +200,43 @@ Notes:
 - **Per-dashboard CSS** (a dashboard's _Edit properties → CSS_) can add small
   layout polish the tokens can't express, but prefer the global theme — it is
   the only path verified to reach the `standalone=2` embed consistently.
+
+## Deployment
+
+Releases are published to AWS S3 and served through CloudFront by the
+`prometheon-data-lake-house-<env>` Terraform stacks. The frontend repo only
+produces and ships a versioned build artifact; the Terraform stack promotes it
+to the live bucket and invalidates the CDN.
+
+The [`release_and_push_s3.yml`](.github/workflows/release_and_push_s3.yml)
+workflow:
+
+- **On a merged PR to `main`** — builds the app and pushes a `latest` artifact
+  to the **dev** S3 artifact store.
+- **On a published GitHub release** — builds the app and pushes the tagged
+  artifact to both the **dev** and **prod** artifact stores, attaches the zip to
+  the release, and bumps `frontend_app_version` in the Terraform repos (a direct
+  push for dev, a PR for prod).
+
+`VITE_SUPERSET_URL` is **inlined at build time**, so each environment is built
+with its own Superset origin. To avoid cross-origin problems the build points at
+the Superset **embed** host (`superset-embed-<env>.…`), which exposes only the
+public dashboard embed paths and lists the SPA origin as an allowed
+frame-ancestor; the SPA is served from a sibling host under the same parent
+zone, keeping the iframe and guest-token requests same-site.
+
+Configure these per repository in GitHub (the pipeline role authenticates via
+OIDC — no long-lived AWS keys):
+
+| Kind     | Name                                        | Purpose                                         |
+| -------- | ------------------------------------------- | ----------------------------------------------- |
+| Variable | `SFOE_SUPERSET_EMBED_VITE_SUPERSET_URL_DEV`  | Superset embed origin baked into the dev build  |
+| Variable | `SFOE_SUPERSET_EMBED_VITE_SUPERSET_URL_PROD` | Superset embed origin baked into the prod build |
+| Variable | `SFOE_SUPERSET_EMBED_S3_BUCKET_DEV`          | Dev S3 artifact store bucket                    |
+| Variable | `SFOE_SUPERSET_EMBED_S3_BUCKET_PROD`         | Prod S3 artifact store bucket                   |
+| Secret   | `SFOE_SUPERSET_EMBED_PIPELINE_ROLE_DEV`      | OIDC role ARN for the dev artifact store        |
+| Secret   | `SFOE_SUPERSET_EMBED_PIPELINE_ROLE_PROD`     | OIDC role ARN for the prod artifact store       |
+| Secret   | `GH_APP_ID` / `GH_APP_PRIVATE_KEY`           | GitHub App used to open the Terraform deploy PR |
 
 ## Development
 

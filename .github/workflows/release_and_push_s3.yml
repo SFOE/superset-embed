@@ -1,0 +1,246 @@
+name: Build, Scan and Push superset-embed to S3
+
+# Publishes the built SPA as a versioned zip artifact to the per-environment S3
+# artifact store. The prometheon-data-lake-house-<env> Terraform stack then promotes
+# that artifact to the live frontend bucket and invalidates CloudFront.
+#
+# On a merged PR to main we push a "latest" artifact to dev; on a GitHub release we
+# push the tagged artifact to both dev and prod and open the Terraform deploy change.
+#
+# CORS note: VITE_SUPERSET_URL is inlined at build time (Vite). It must point at the
+# Superset *embed* host (superset-embed-<env>.data-lake-house-<env>.prometheon.bfe.admin.ch),
+# which serves only the public dashboard embed paths and lists the SPA origin as an
+# allowed frame-ancestor. The SPA itself is served from a sibling host under the same
+# parent zone, so the iframe and guest-token fetch stay same-site.
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  # ----------------------------------------------------------
+  # Build a frontend zip per environment (Superset embed URL differs per env)
+  # ----------------------------------------------------------
+  build:
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      github.event_name == 'release'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        env:
+          - name: dev
+            superset_url: SFOE_SUPERSET_EMBED_VITE_SUPERSET_URL_DEV
+          - name: prod
+            superset_url: SFOE_SUPERSET_EMBED_VITE_SUPERSET_URL_PROD
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build superset-embed
+        run: |
+          export VITE_SUPERSET_URL="${{ vars[matrix.env.superset_url] }}"
+
+          if [ -z "$VITE_SUPERSET_URL" ]; then
+            echo "ERROR: VITE_SUPERSET_URL is empty for env '${{ matrix.env.name }}'."
+            echo "Set the '${{ matrix.env.superset_url }}' Actions variable to the Superset embed origin."
+            exit 1
+          fi
+
+          echo "Building frontend with VITE_SUPERSET_URL=$VITE_SUPERSET_URL"
+          npm run build
+
+          echo "Verifying Superset URL was inlined in the build..."
+          count=$(grep -R -I -o "$VITE_SUPERSET_URL" dist/ | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "ERROR: VITE_SUPERSET_URL not found in build output - build may be broken."
+            exit 1
+          fi
+          echo "Found VITE_SUPERSET_URL $count time(s) in build artifacts."
+
+      - name: Create zip archive
+        run: zip -r superset-embed-${{ matrix.env.name }}.zip dist
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: superset-embed-${{ matrix.env.name }}
+          path: superset-embed-${{ matrix.env.name }}.zip
+          retention-days: 1
+
+  # ----------------------------------------------------------
+  # PR merge -> push "latest" artifact to dev
+  # ----------------------------------------------------------
+  scan-push-dev-latest:
+    needs: build
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    uses: SFOE-prometheon/github-terraform-workflows/.github/workflows/s3-artifact-scan-push.yml@v9
+    with:
+      s3-artifact-name: superset-embed
+      artifact-name: superset-embed-dev
+      s3-bucket: ${{ vars.SFOE_SUPERSET_EMBED_S3_BUCKET_DEV }}
+      tag-name: latest
+      aws-region: eu-central-1
+      scan-type: repository
+    secrets:
+      aws-role: ${{ secrets.SFOE_SUPERSET_EMBED_PIPELINE_ROLE_DEV }}
+
+  # ----------------------------------------------------------
+  # Release -> push the tagged artifact to dev and prod
+  # ----------------------------------------------------------
+  scan-push-dev:
+    needs: build
+    if: github.event_name == 'release'
+    uses: SFOE-prometheon/github-terraform-workflows/.github/workflows/s3-artifact-scan-push.yml@v9
+    with:
+      s3-artifact-name: superset-embed
+      artifact-name: superset-embed-dev
+      s3-bucket: ${{ vars.SFOE_SUPERSET_EMBED_S3_BUCKET_DEV }}
+      tag-name: ${{ github.event.release.tag_name }}
+      aws-region: eu-central-1
+      scan-type: repository
+    secrets:
+      aws-role: ${{ secrets.SFOE_SUPERSET_EMBED_PIPELINE_ROLE_DEV }}
+
+  scan-push-prod:
+    needs: build
+    if: github.event_name == 'release'
+    uses: SFOE-prometheon/github-terraform-workflows/.github/workflows/s3-artifact-scan-push.yml@v9
+    with:
+      s3-artifact-name: superset-embed
+      artifact-name: superset-embed-prod
+      s3-bucket: ${{ vars.SFOE_SUPERSET_EMBED_S3_BUCKET_PROD }}
+      tag-name: ${{ github.event.release.tag_name }}
+      aws-region: eu-central-1
+      scan-type: repository
+    secrets:
+      aws-role: ${{ secrets.SFOE_SUPERSET_EMBED_PIPELINE_ROLE_PROD }}
+
+  # ----------------------------------------------------------
+  # Attach the prod zip to the GitHub release
+  # ----------------------------------------------------------
+  upload-release-asset:
+    needs: scan-push-prod
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: superset-embed-prod
+
+      - name: Rename artifact for release
+        run: mv superset-embed-prod.zip superset-embed.zip
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: superset-embed.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ----------------------------------------------------------
+  # Push summary
+  # ----------------------------------------------------------
+  post-push:
+    needs: [scan-push-dev-latest, scan-push-dev, scan-push-prod]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print push summary
+        run: |
+          echo "## Push Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | Artifact Name | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dev (Latest) | ${{ needs.scan-push-dev-latest.outputs.s3-key || 'N/A' }} | ${{ needs.scan-push-dev-latest.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dev (Release) | ${{ needs.scan-push-dev.outputs.s3-key || 'N/A' }} | ${{ needs.scan-push-dev.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Prod (Release) | ${{ needs.scan-push-prod.outputs.s3-key || 'N/A' }} | ${{ needs.scan-push-prod.result }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ----------------------------------------------------------
+  # Release -> bump frontend_app_version in the Terraform stacks
+  # ----------------------------------------------------------
+  deploy:
+    name: deploy
+    needs: [scan-push-dev, scan-push-prod]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    env:
+      VERSION_TAG: ${{ github.event.release.tag_name }}
+
+    strategy:
+      matrix:
+        env:
+          - name: dev
+          - name: prod
+
+    steps:
+      - name: Authenticate as GitHub App
+        id: app-auth
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: SFOE-prometheon
+
+      - name: Clone Terraform repo
+        uses: actions/checkout@v4
+        with:
+          repository: SFOE-prometheon/prometheon-data-lake-house-${{ matrix.env.name }}
+          ref: main
+          token: ${{ steps.app-auth.outputs.token }}
+          path: tf-repo
+
+      - name: Update frontend version in Terraform repo
+        run: |
+          cd tf-repo
+          sed -i "s/\"frontend_app_version\": \".*\"/\"frontend_app_version\": \"${{ env.VERSION_TAG }}\"/" deploy.auto.tfvars.json
+
+      - name: Create branch and commit changes
+        run: |
+          cd tf-repo
+          git config user.name "GitHub Actions"
+          git config user.email "noreply@github.com"
+          git checkout -b deploy/superset-embed-${{ env.VERSION_TAG }}
+          git add deploy.auto.tfvars.json
+          git commit -m "Deploy superset-embed frontend version ${{ env.VERSION_TAG }}"
+
+      - name: Push to main (dev)
+        if: matrix.env.name == 'dev'
+        run: |
+          cd tf-repo
+          git push origin deploy/superset-embed-${{ env.VERSION_TAG }}:main
+        env:
+          GITHUB_TOKEN: ${{ steps.app-auth.outputs.token }}
+
+      - name: Create PR (prod)
+        if: matrix.env.name == 'prod'
+        run: |
+          cd tf-repo
+          git push origin deploy/superset-embed-${{ env.VERSION_TAG }}
+          gh pr create \
+            --base main \
+            --head deploy/superset-embed-${{ env.VERSION_TAG }} \
+            --title "Deploy superset-embed version ${{ env.VERSION_TAG }} to prod" \
+            --body "Automated deployment PR for superset-embed version ${{ env.VERSION_TAG }}"
+        env:
+          GITHUB_TOKEN: ${{ steps.app-auth.outputs.token }}
