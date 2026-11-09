@@ -218,6 +218,12 @@ workflow:
   the release, and bumps `frontend_app_version` in the Terraform repos (a direct
   push for dev, a PR for prod).
 
+Both the release-asset upload and the Terraform deploy PR authenticate with a
+short-lived token minted from the shared GitHub App
+(`actions/create-github-app-token`) rather than the broad default
+`GITHUB_TOKEN` — the workflow only requests `contents: read` / `id-token: write`
+at the top level.
+
 `VITE_SUPERSET_URL` is **inlined at build time**, so each environment is built
 with its own Superset origin. To avoid cross-origin problems the build points at
 the Superset **embed** host (`superset-embed-<env>.…`), which exposes only the
@@ -236,7 +242,7 @@ OIDC — no long-lived AWS keys):
 | Variable | `SFOE_SUPERSET_EMBED_S3_BUCKET_PROD`         | Prod S3 artifact store bucket                   |
 | Secret   | `SFOE_SUPERSET_EMBED_PIPELINE_ROLE_DEV`      | OIDC role ARN for the dev artifact store        |
 | Secret   | `SFOE_SUPERSET_EMBED_PIPELINE_ROLE_PROD`     | OIDC role ARN for the prod artifact store       |
-| Secret   | `GH_APP_ID` / `GH_APP_PRIVATE_KEY`           | GitHub App used to open the Terraform deploy PR |
+| Secret   | `GH_APP_ID` / `GH_APP_PRIVATE_KEY`           | GitHub App used to mint short-lived tokens for the release asset upload and the Terraform deploy PR |
 
 ## Development
 

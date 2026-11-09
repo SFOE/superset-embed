@@ -23,7 +23,11 @@ on:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.release.tag_name }}
+  cancel-in-progress: false
 
 jobs:
   # ----------------------------------------------------------
@@ -143,6 +147,16 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
+      # Mint a short-lived, repo-scoped token instead of relying on the broad default
+      # GITHUB_TOKEN. The token is generated fresh for this job run and expires with it;
+      # it is never stored as a secret. Needs "Contents: write" on the GitHub App installation.
+      - name: Authenticate as GitHub App
+        id: app-auth
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -156,7 +170,7 @@ jobs:
         with:
           files: superset-embed.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-auth.outputs.token }}
 
   # ----------------------------------------------------------
   # Push summary
